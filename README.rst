@@ -22,3 +22,15 @@ mayapy nbackgrounder.py -f "path\to\maya\file.mb" -d "path\to\cache\dir" -p "par
                          cache more than one particleShape
       -fr FRANGE FRANGE  Frame Range to cache
 
+Maya nBackgrounder Utils
+--------------
+
+Refresh your scenes cacheFile nodes using refresh_cache, allowing you to see more recently cached frames. This is a hack where we just toggle multiThread in the cacheFile node on and then off. For some reason this refreshes the node.::
+
+    import nbackgrounder.utils as nbutils
+    nbutils.refresh_ncache()
+
+Generate a bat or sh script using generate. Creates a shell script for your current os from your currently select particle nodes. The script will be generated inside the same folder as the current maya scene. All you need to do is run the script and you'll start caching in a separate process.::
+
+    import nbackgrounder.utils as nbutils
+    nbutils.generate()
