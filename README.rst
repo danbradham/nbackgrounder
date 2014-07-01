@@ -8,6 +8,7 @@ Command Line
 mayapy nbackgrounder.py -f "path\to\maya\file.mb" -d "path\to\cache\dir" -p "particle1" -p "particle2" -fr 100 200
 
 ::
+
     usage: nbackgrounder.py [-h] -f FILEPATH -d CACHEDIR -p PARTICLES [-fr FRANGE FRANGE]
 
     Cache nParticle systems from your command line, freeing you up to continue
