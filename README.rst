@@ -34,6 +34,6 @@ Generate a bat or sh script using generate. Creates a shell script for your curr
 
     shell_script_path = nbutils.generate()
 
-You can also start the generated nBackgrounder shell script directly from maya.
+You can also start the generated nBackgrounder shell script directly from maya.::
 
     nbutils.start(shell_script_path)
