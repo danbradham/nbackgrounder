@@ -31,12 +31,12 @@ Refresh your scenes cacheFile nodes using refresh_cache, allowing you to see mor
     import nbackgrounder.utils as nbutils
     nbutils.refresh_ncache()
 
-Launch nBackgrounder shell scripts directly from maya using the convenient ShellScript context.
+Launch nBackgrounder shell scripts directly from maya using the convenient ShellScript context.::
 
     with nbutils.ShellScript() as shscript:
         nbutils.execute(shscript)
 
-ShellScript acceps the following parameters:
+ShellScript accepts the following parameters::
     mesh_only: Generate an alembic cache from all meshes attached to selected particles. (default: False)
     post_mesh: Generate an nParticle cache, then afterwards generate an alembic cache. (default: False)
     timeout: Time to leave shell window open after nBackgrounder is finished. (default: 10)
