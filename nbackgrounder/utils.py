@@ -2,17 +2,25 @@ import maya.cmds as cmds
 import platform
 import os
 import subprocess
+import contextlib
 
 NBACKGROUNDER_PY = os.path.join(os.path.dirname(__file__), "nbackgrounder.py")
 
 BAT = '''
 mayapy "{nback}" -f "{filename}" -d "{cachedir}" {particles} -fr {start} {stop} {mesh}
-timeout 60
+timeout {timeout}
 '''
 
 SH = '''
 mayapy "{nback}" -f "{filename}" -d "{cachedir}" {particles} -fr {start} {stop} {mesh}
+sleep {timeout}
 '''
+
+TEMPLATES = {
+    "Windows": BAT,
+    "Linux": SH,
+    "Darwin": SH
+    }
 
 
 def refresh_ncache():
@@ -21,7 +29,7 @@ def refresh_ncache():
         cmds.setAttr(ncache + ".multiThread", 0)
 
 
-def start(script):
+def execute(script):
     plat = platform.system()
     if plat == "Windows":
         os.startfile(os.path.abspath(script))
@@ -32,12 +40,24 @@ def start(script):
         }[plat]
         subprocess.call([starter, script])
 
+@contextlib.contextmanager
+def ShellScript(mesh_only=False, post_mesh=False, timeout=10):
+    try:
+        shell_script = generate_shell_script(mesh)
+        yield shell_script
+    except Exception, err:
+        raise Exception(err)
+    finally:
+        try:
+            os.remove(shell_script)
+        except OSError:
+            print "Could not remove {0}".format(shell_script)
 
-def generate(mesh=False):
+def generate_shell_script(mesh_only=False, post_mesh=False, timeout=10):
     '''Generates an OS specific shell script.'''
-    gen_fn = GENERATORS.get(platform.system(), None)
-    if not gen_fn:
-        raise OSError("Can not find a generator for your OS.")
+    template = TEMPLATES.get(platform.system(), None)
+    if not TEMPLATES:
+        raise OSError("Can not find a shell script template for your OS.")
 
     #Get the appropriate data from current Maya session
     filename = cmds.file(query=True, sceneName=True)
@@ -61,48 +81,34 @@ def generate(mesh=False):
         int(cmds.playbackOptions(query=True, min=True)),
         int(cmds.playbackOptions(query=True, max=True)))
 
-    script = gen_fn(filename, cachedir, particles, start_time, stop_time, mesh)
-    print "Shell script generated: ", script
-    return script
 
-
-def generate_bat(filename, cachedir, particles, start_time, stop_time, mesh=False):
-    '''Windows Shell Script'''
-    bat_file = os.path.splitext(filename)[0] + ".bat"
-    bat_txt = BAT.format(
+    script_file = os.path.splitext(filename)[0] + ".bat"
+    script = formatter.format(
+        nback=NBACKGROUNDER_PY,
+        filename=filename,
+        cachedir=cachedir,
+        particles=particles,
+        start=start_time,
+        stop=stop_time,
+        mesh="-mesh" if mesh else "",
+        timeout=timeout)
+    if not mesh and post_mesh:
+        script.replace("sleep {0}".format(timeout), "sleep 10")
+        script.replace("timeout {0}".format(timeout), "timeout 10")
+        script += formatter.format(
             nback=NBACKGROUNDER_PY,
             filename=filename,
             cachedir=cachedir,
             particles=particles,
             start=start_time,
             stop=stop_time,
-            mesh="-mesh" if mesh else "")
+            mesh="-mesh",
+            timeout=timeout)
 
-    with open(bat_file, "w") as f:
-        f.write(bat_txt)
+    with open(script_file, 'w') as f:
+        f.write(script)
 
-    return bat_file
-
-
-def generate_sh(filename, cachedir, particles, start_time, stop_time, mesh=False):
-    '''Linux Shell Script'''
-    sh_file = os.path.splitext(filename)[0] + ".sh"
-    sh_txt = SH.format(
-            nback=NBACKGROUNDER_PY,
-            filename=filename,
-            cachedir=cachedir,
-            particles=particles,
-            start=start_time,
-            stop=stop_time)
-
-    with open(sh_file, "w") as f:
-        f.write(sh_txt)
-
-    return sh_file
-
-
-GENERATORS = {
-    "Windows": generate_bat,
-    "Linux": generate_sh
-    }
+    cmds.headsUpMessage("Shell script generated: " + script_file)
+    print "Shell script generated: ", script_file
+    return script_file
 
