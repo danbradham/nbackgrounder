@@ -26,17 +26,23 @@ mayapy nbackgrounder.py -f "path\to\maya\file.mb" -d "path\to\cache\dir" -p "par
 Maya nBackgrounder Utils
 --------------
 
-Refresh your scenes cacheFile nodes using refresh_cache, allowing you to see more recently cached frames. This is a hack where we just toggle multiThread in the cacheFile node on and then off. For some reason this refreshes the cacheFile node.:
+Refresh your scenes cacheFile nodes using refresh_cache, allowing you to see more recently cached frames. This is a hack where we just toggle multiThread in the cacheFile node on and then off. For some reason this refreshes the cacheFile node.
+
+::
 
     import nbackgrounder.utils as nbutils
     nbutils.refresh_ncache()
 
-Launch nBackgrounder shell scripts directly from maya using the convenient ShellScript context.:
+Launch nBackgrounder shell scripts directly from maya using the convenient ShellScript context.
+
+::
 
     with nbutils.ShellScript() as shscript:
         nbutils.execute(shscript)
 
 ShellScript accepts the following parameters:
+
+::
 
     mesh_only: Generate an alembic cache from all meshes attached to selected particles. (default: False)
     post_mesh: Generate an nParticle cache, then afterwards generate an alembic cache. (default: False)
