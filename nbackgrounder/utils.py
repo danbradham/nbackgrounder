@@ -43,16 +43,17 @@ def execute(script):
 
 @contextlib.contextmanager
 def ShellScript(mesh_only=False, post_mesh=False, timeout=10):
+    shell_script = generate_shell_script(mesh_only, post_mesh, timeout)
     try:
-        shell_script = generate_shell_script(mesh)
         yield shell_script
     except Exception, err:
         raise Exception(err)
     finally:
-        try:
-            os.remove(shell_script)
-        except OSError:
-            print "Could not remove {0}".format(shell_script)
+        # try:
+        #     os.remove(shell_script)
+        # except OSError:
+        #     print "Could not remove {0}".format(shell_script)
+        pass
 
 
 def generate_shell_script(mesh_only=False, post_mesh=False, timeout=10):
@@ -82,9 +83,11 @@ def generate_shell_script(mesh_only=False, post_mesh=False, timeout=10):
         int(cmds.playbackOptions(query=True, min=True)),
         int(cmds.playbackOptions(query=True, max=True)))
 
-    script_file = os.path.splitext(filename)[0] + ".bat"
+    fname, fext = os.path.splitext(filename)
+    script_file = fname + ".bat"
+    cached_file = fname + "_cached" + fext
     if post_mesh:
-        script = formatter.format(
+        script = template.format(
             nback=NBACKGROUNDER_PY,
             filename=filename,
             cachedir=cachedir,
@@ -95,9 +98,9 @@ def generate_shell_script(mesh_only=False, post_mesh=False, timeout=10):
             timeout=timeout)
         script.replace("sleep {0}".format(timeout), "sleep 10")
         script.replace("timeout {0}".format(timeout), "timeout 10")
-        script += formatter.format(
+        script += template.format(
             nback=NBACKGROUNDER_PY,
-            filename=os.path.splitext(filename)[0] + ".bat",
+            filename=cached_file,
             cachedir=mesh_cachedir,
             particles=particles,
             start=start_time,
@@ -105,9 +108,9 @@ def generate_shell_script(mesh_only=False, post_mesh=False, timeout=10):
             mesh="-mesh",
             timeout=timeout)
     else:
-        script = formatter.format(
+        script = template.format(
             nback=NBACKGROUNDER_PY,
-            filename=filename,
+            filename=filename if not mesh_only else cached_file,
             cachedir=cachedir if not mesh_only else mesh_cachedir,
             particles=particles,
             start=start_time,

@@ -97,8 +97,11 @@ def background_abc(filepath, cachedir, particles, frange=None):
             raise NameError(p + " does not exist in specified scene.")
         particle_nodes.append(cmds.listRelatives(p, type="nParticle")[0])
 
-    meshes = [cmds.listConnections(p + ".outMesh")[0]
-              for p in particle_nodes]
+    try:
+        meshes = [cmds.listConnections(p + ".outMesh")[0]
+                  for p in particle_nodes]
+    except:
+        raise Exception("No geometry found to cache")
 
     abc_id = os.path.basename(cachedir)
     try:
