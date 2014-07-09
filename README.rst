@@ -32,5 +32,8 @@ Refresh your scenes cacheFile nodes using refresh_cache, allowing you to see mor
 
 Generate a bat or sh script using generate. Creates a shell script for your current os from your currently select particle nodes. The script will be generated inside the same folder as the current maya scene. All you need to do is run the script and you'll start caching in a separate process.::
 
-    import nbackgrounder.utils as nbutils
-    nbutils.generate()
+    shell_script_path = nbutils.generate()
+
+You can also start the generated nBackgrounder shell script directly from maya.
+
+    nbutils.start(shell_script_path)
