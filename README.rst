@@ -36,7 +36,7 @@ Launch nBackgrounder shell scripts directly from maya using the convenient Shell
     with nbutils.ShellScript() as shscript:
         nbutils.execute(shscript)
 
-ShellScript accepts the following parameters::
+ShellScript accepts the following parameters: ::
     mesh_only: Generate an alembic cache from all meshes attached to selected particles. (default: False)
     post_mesh: Generate an nParticle cache, then afterwards generate an alembic cache. (default: False)
     timeout: Time to leave shell window open after nBackgrounder is finished. (default: 10)
